@@ -20,8 +20,8 @@ class Film
 
   def self.all
     sql = "SELECT * FROM films"
-    result = SqlRunner.run(sql)
-    result.map{ |film| Film.new(film) }
+    films = SqlRunner.run(sql)
+    films.map{ |film| Film.new(film) }
   end
 
   def update
@@ -34,34 +34,25 @@ class Film
 
   def delete
     sql = "DELETE FROM films
-    WHERE id = $1
-    RETURNING title"
+    WHERE id = $1"
     values = [@id]
     SqlRunner.run(sql, values)
   end
 
-  def customer
+  def customers
     sql = "SELECT customers.*
     FROM customers
-    INNER JOIN"
+    INNER JOIN tickets
+    ON customers.id = tickets.customer_id
+    WHERE film_id = $1"
+    values = [@id]
+    customers = SqlRunner.run(sql, values)
+    customers.map {|customer| Customer.new(customer)}
   end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   def count_customers
+     result = self.customers
+     return result.count
+   end
 
 end
